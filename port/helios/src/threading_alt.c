@@ -18,8 +18,11 @@ void mbedtls_port_threading_mutex_free(mbedtls_threading_mutex_t * mutex)
 {
 	if(mutex)
 	{
-        Helios_Mutex_Delete(mutex->mutex);
-		mutex->is_valid = 0;
+	    if (mutex->is_valid)
+	    {
+            Helios_Mutex_Delete(mutex->mutex);
+		    mutex->is_valid = 0;
+		}
 	}
 }
 

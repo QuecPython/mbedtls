@@ -4,10 +4,10 @@
 #include <time.h>
 #include <stdint.h>
 
-//struct timeval { 
-//	int tv_sec; 
-//	int tv_usec;
-//};
+struct timeval { 
+	int tv_sec; 
+	int tv_usec;
+};
 
 extern int gettimeofday(struct timeval *tv, void *tz);
 
