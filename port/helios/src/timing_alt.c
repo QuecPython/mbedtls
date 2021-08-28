@@ -4,10 +4,12 @@
 #include <time.h>
 #include <stdint.h>
 
+#if defined (PLAT_ASR)
 struct timeval { 
 	int tv_sec; 
 	int tv_usec;
 };
+#endif
 
 extern int gettimeofday(struct timeval *tv, void *tz);
 
