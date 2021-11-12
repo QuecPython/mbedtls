@@ -107,11 +107,15 @@ $(NAME)_COMPONENTS = \
 	system/platform/$(strip $(PLAT)) \
 	system/lwip \
 	system/fs \
-	system/network
+	system/network \
+	system/hal
 
 $(NAME)_CFLAGS = \
 	-Wno-error=unused-parameter \
 	-Wno-error=unused-function
+ifeq ($(strip $(PLAT)),Qualcomm)
+	$(NAME)_CFLAGS += -Wno-error=tautological-constant-out-of-range-compare
+endif
 
 ifeq ($(strip $(PLAT)),Unisoc)
 $(NAME)_CFLAGS += --include=system/lwip/$(strip $(PLAT))/src/include/lwip/errno.h

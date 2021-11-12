@@ -86,11 +86,17 @@ static int wsa_init_done = 0;
 #if defined (MBEDTLS_WITH_HELIOS)
 
 #include "helios_datacall.h"
+
+#if defined(PLAT_Qualcomm)
+#include "helios_socket.h"
+#else
 #include "sockets.h"
 #if defined (PLAT_Unisoc)
 #include "socket.h"
 #endif
 #include "netdb.h"
+#endif
+
 #else
 
 #include <sys/types.h>
@@ -213,7 +219,8 @@ int mbedtls_net_connect( mbedtls_net_context *ctx,
         }
 
 #if defined (MBEDTLS_WITH_HELIOS)
-		Helios_DataCallInfoStruct data_call_info = {0};
+		Helios_DataCallInfoStruct data_call_info;
+		memset(&data_call_info, 0x00, sizeof(Helios_DataCallInfoStruct));
 		union {
 			struct sockaddr_in addr4;
 			struct sockaddr_in6 addr6;
@@ -363,7 +370,11 @@ static int net_would_block( const mbedtls_net_context *ctx )
  
 static int net_would_block( const mbedtls_net_context *ctx )
 {
+#if defined (PLAT_Qualcomm)
+    int err = errno(ctx->fd);
+#else
     int err = errno;
+#endif
 
     /*
      * Never return 'WOULD BLOCK' on a blocking socket
@@ -374,11 +385,19 @@ static int net_would_block( const mbedtls_net_context *ctx )
 	#endif
 		) & O_NONBLOCK ) != O_NONBLOCK )
     {
+    #if defined (PLAT_Qualcomm)
+        err = errno(ctx->fd);
+    #else
         err = errno;
+    #endif
         return( 0 );
     }
 
-    switch( err = errno)
+#if defined (PLAT_Qualcomm)
+    switch( err = errno(ctx->fd) )
+#else
+    switch( err = errno )
+#endif
     {
 #if defined EAGAIN
         case EAGAIN:
@@ -652,10 +671,18 @@ int mbedtls_net_recv( void *ctx, unsigned char *buf, size_t len )
         if( WSAGetLastError() == WSAECONNRESET )
             return( MBEDTLS_ERR_NET_CONN_RESET );
 #else
+    #if defined (PLAT_Qualcomm)
+        if( errno(((mbedtls_net_context *) ctx)->fd) == EPIPE || errno(((mbedtls_net_context *) ctx)->fd) == ECONNRESET )
+    #else
         if( errno == EPIPE || errno == ECONNRESET )
+    #endif
             return( MBEDTLS_ERR_NET_CONN_RESET );
 
+    #if defined (PLAT_Qualcomm)
+        if( errno(((mbedtls_net_context *) ctx)->fd) == EINTR )
+    #else
         if( errno == EINTR )
+    #endif
             return( MBEDTLS_ERR_SSL_WANT_READ );
 #endif
 
@@ -698,7 +725,11 @@ int mbedtls_net_recv_timeout( void *ctx, unsigned char *buf,
         if( WSAGetLastError() == WSAEINTR )
             return( MBEDTLS_ERR_SSL_WANT_READ );
 #else
+    #if defined (PLAT_Qualcomm)
+        if( errno(((mbedtls_net_context *) ctx)->fd) == EINTR )
+    #else
         if( errno == EINTR )
+    #endif
             return( MBEDTLS_ERR_SSL_WANT_READ );
 #endif
 
@@ -732,10 +763,18 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
         if( WSAGetLastError() == WSAECONNRESET )
             return( MBEDTLS_ERR_NET_CONN_RESET );
 #else
+    #if defined (PLAT_Qualcomm)
+        if( errno(((mbedtls_net_context *) ctx)->fd) == EPIPE || errno(((mbedtls_net_context *) ctx)->fd) == ECONNRESET )
+    #else
         if( errno == EPIPE || errno == ECONNRESET )
+    #endif
             return( MBEDTLS_ERR_NET_CONN_RESET );
 
+    #if defined (PLAT_Qualcomm)
+        if( errno(((mbedtls_net_context *) ctx)->fd) == EINTR )
+    #else
         if( errno == EINTR )
+    #endif
             return( MBEDTLS_ERR_SSL_WANT_WRITE );
 #endif
 
