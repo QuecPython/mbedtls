@@ -2,6 +2,10 @@
 #ifndef MBEDTLS_TIMING_ALT_H
 #define MBEDTLS_TIMING_ALT_H
 
+#if defined (PLAT_Qualcomm)
+#include <time.h>
+time_t qual_mbedtls_time(time_t *t);
+#endif
 /**
  * \brief          timer structure
  */

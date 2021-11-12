@@ -30,6 +30,11 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+#if defined (PLAT_Qualcomm)
+#include "../../port/helios/inc/timing_alt.h"
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -70,6 +75,8 @@ int mbedtls_platform_set_time( mbedtls_time_t (*time_func)( mbedtls_time_t* time
 #else
 #if defined(MBEDTLS_PLATFORM_TIME_MACRO)
 #define mbedtls_time    MBEDTLS_PLATFORM_TIME_MACRO
+#elif defined (PLAT_Qualcomm)
+#define mbedtls_time qual_mbedtls_time
 #else
 #define mbedtls_time   time
 #endif /* MBEDTLS_PLATFORM_TIME_MACRO */
